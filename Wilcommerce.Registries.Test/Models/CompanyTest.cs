@@ -165,5 +165,77 @@ namespace Wilcommerce.Registries.Test.Models
             Assert.Equal(vatNumber, company.VatNumber);
         }
         #endregion
+
+        #region ChangeLegalAddress test
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ChangeLegalAddress_Should_Throw_ArgumentException_If_Address_Is_Empty(string address)
+        {
+            string city = "Mycity";
+            string postalCode = "12345";
+            string province = "Province";
+            string country = "italy";
+
+            var company = Company.Register("company", "1234567890");
+
+            var ex = Assert.Throws<ArgumentException>(() => company.ChangeLegalAddress(address, city, postalCode, province, country));
+            Assert.Equal(nameof(address), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ChangeLegalAddress_Should_Throw_ArgumentException_If_City_Is_Empty(string city)
+        {
+            string address = "address";
+            string postalCode = "12345";
+            string province = "Province";
+            string country = "italy";
+
+            var company = Company.Register("company", "1234567890");
+
+            var ex = Assert.Throws<ArgumentException>(() => company.ChangeLegalAddress(address, city, postalCode, province, country));
+            Assert.Equal(nameof(city), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ChangeLegalAddress_Should_Throw_ArgumentException_If_Province_Is_Empty(string province)
+        {
+            string address = "address";
+            string city = "Mycity";
+            string postalCode = "12345";
+            string country = "italy";
+
+            var company = Company.Register("company", "1234567890");
+
+            var ex = Assert.Throws<ArgumentException>(() => company.ChangeLegalAddress(address, city, postalCode, province, country));
+            Assert.Equal(nameof(province), ex.ParamName);
+        }
+
+        [Fact]
+        public void ChangeLegalAddress_Should_Change_The_Legal_Address_With_The_Specified_Values()
+        {
+            string address = "address";
+            string city = "Mycity";
+            string postalCode = "12345";
+            string province = "Province";
+            string country = "italy";
+
+            var company = Company.Register("company", "1234567890");
+            company.ChangeLegalAddress(address, city, postalCode, province, country);
+
+            Assert.Equal(address, company.LegalAddress?.Address);
+            Assert.Equal(city, company.LegalAddress?.City);
+            Assert.Equal(postalCode, company.LegalAddress?.PostalCode);
+            Assert.Equal(province, company.LegalAddress?.Province);
+            Assert.Equal(country, company.LegalAddress?.Country);
+        }
+        #endregion
     }
 }

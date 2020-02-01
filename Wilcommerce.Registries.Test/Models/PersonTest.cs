@@ -222,18 +222,5 @@ namespace Wilcommerce.Registries.Test.Models
             Assert.Equal(gender, person.Gender);
         }
         #endregion
-
-        #region SetNationalIdentificationNumber test
-        [Fact]
-        public void SetNationalIdentificationNumber_Should_Set_The_National_Identification_Number_With_The_Specified_Value()
-        {
-            var person = Person.Register("name", "lastname", Gender.Female, new DateTime(1987, 1, 1));
-
-            string nationalIdentificationNumber = "nationalidentificationnumber";
-            person.SetNationalIdentificationNumber(nationalIdentificationNumber);
-
-            Assert.Equal(nationalIdentificationNumber, person.NationalIdentificationNumber);
-        }
-        #endregion
     }
 }

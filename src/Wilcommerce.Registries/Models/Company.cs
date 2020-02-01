@@ -13,7 +13,7 @@ namespace Wilcommerce.Registries.Models
         /// </summary>
         protected Company() : base()
         {
-
+            LegalAddress = new PostalAddress();
         }
         #endregion
 
@@ -27,6 +27,11 @@ namespace Wilcommerce.Registries.Models
         /// Get or set the company vat number
         /// </summary>
         public string VatNumber { get; protected set; }
+
+        /// <summary>
+        /// Get or set the legal address of the company
+        /// </summary>
+        public virtual PostalAddress LegalAddress { get; protected set; }
         #endregion
 
         #region Behaviors
@@ -56,6 +61,41 @@ namespace Wilcommerce.Registries.Models
             }
 
             VatNumber = vatNumber;
+        }
+
+        /// <summary>
+        /// Change the company legal address
+        /// </summary>
+        /// <param name="address">The address</param>
+        /// <param name="city">The city</param>
+        /// <param name="postalCode">The postal code</param>
+        /// <param name="province">The province</param>
+        /// <param name="country">The country</param>
+        public virtual void ChangeLegalAddress(string address, string city, string postalCode, string province, string country)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(address));
+            }
+
+            if (string.IsNullOrWhiteSpace(city))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(city));
+            }
+
+            if (string.IsNullOrWhiteSpace(province))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(province));
+            }
+
+            LegalAddress = new PostalAddress
+            {
+                Address = address,
+                City = city,
+                Country = country,
+                PostalCode = postalCode,
+                Province = province
+            };
         }
         #endregion
 

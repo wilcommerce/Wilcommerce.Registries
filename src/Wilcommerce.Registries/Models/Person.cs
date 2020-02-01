@@ -30,11 +30,6 @@ namespace Wilcommerce.Registries.Models
         public string LastName { get; protected set; }
 
         /// <summary>
-        /// Get or set the customer's national identification number
-        /// </summary>
-        public string NationalIdentificationNumber { get; protected set; }
-
-        /// <summary>
         /// Get or set the customer's date of birth
         /// </summary>
         public DateTime? BirthDate { get; protected set; }
@@ -95,15 +90,6 @@ namespace Wilcommerce.Registries.Models
         public virtual void ChangeGender(Gender gender)
         {
             Gender = gender;
-        }
-
-        /// <summary>
-        /// Set the person's national identification number
-        /// </summary>
-        /// <param name="nationalIdentificationNumber"></param>
-        public virtual void SetNationalIdentificationNumber(string nationalIdentificationNumber)
-        {
-            NationalIdentificationNumber = nationalIdentificationNumber;
         }
         #endregion
 

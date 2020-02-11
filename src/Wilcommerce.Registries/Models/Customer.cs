@@ -140,7 +140,7 @@ namespace Wilcommerce.Registries.Models
         }
 
         /// <summary>
-        /// Set the person's national identification number
+        /// Set the customer's national identification number
         /// </summary>
         /// <param name="nationalIdentificationNumber"></param>
         public virtual void SetNationalIdentificationNumber(string nationalIdentificationNumber)

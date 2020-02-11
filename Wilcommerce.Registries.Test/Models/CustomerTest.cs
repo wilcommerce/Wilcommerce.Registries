@@ -504,6 +504,509 @@ namespace Wilcommerce.Registries.Test.Models
         }
         #endregion
 
+        #region AddBillingInformation tests
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void AddBillingInformation_Should_Throw_ArgumentException_If_FullName_Is_Empty(string fullName)
+        {
+            var customer = this.CreateCustomerMock();
+
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = null;
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.AddBillingInformation(fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(fullName), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void AddBillingInformation_Should_Throw_ArgumentException_If_Address_Is_Empty(string address)
+        {
+            var customer = this.CreateCustomerMock();
+
+            string fullName = "full name";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = null;
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.AddBillingInformation(fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(address), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void AddBillingInformation_Should_Throw_ArgumentException_If_City_Is_Empty(string city)
+        {
+            var customer = this.CreateCustomerMock();
+
+            string fullName = "full name";
+            string address = "address";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = null;
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.AddBillingInformation(fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(city), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void AddBillingInformation_Should_Throw_ArgumentException_If_Province_Is_Empty(string province)
+        {
+            var customer = this.CreateCustomerMock();
+
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string country = "italy";
+            string nationalIdentificationNumber = null;
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.AddBillingInformation(fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(province), ex.ParamName);
+        }
+
+        [Fact]
+        public void AddBillingInformation_Should_Reset_The_Previous_Default_Info_If_IsDefault_Is_True()
+        {
+            var customer = this.CreateCustomerMock();
+            customer.AddBillingInformation("name", "address", "c1", "11223", "p1", "italy", null, "0987654321", true);
+
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = null;
+            string vatNumber = "1234567890";
+            bool isDefault = true;
+
+            customer.AddBillingInformation(fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+
+            var defaultInfo = customer.BillingInformation.SingleOrDefault(b => b.IsDefault);
+
+            Assert.NotNull(defaultInfo);
+            Assert.Equal(fullName, defaultInfo.FullName);
+            Assert.Equal(address, defaultInfo.BillingAddress.Address);
+            Assert.Equal(city, defaultInfo.BillingAddress.City);
+            Assert.Equal(postalCode, defaultInfo.BillingAddress.PostalCode);
+            Assert.Equal(province, defaultInfo.BillingAddress.Province);
+            Assert.Equal(country, defaultInfo.BillingAddress.Country);
+            Assert.Equal(nationalIdentificationNumber, defaultInfo.NationalIdentificationNumber);
+            Assert.Equal(vatNumber, defaultInfo.VatNumber);
+        }
+
+        [Fact]
+        public void AddBillingInformation_Should_Add_The_Billing_Info_With_Specified_Values()
+        {
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = null;
+            string vatNumber = "1234567890";
+            bool isDefault = true;
+
+            var customer = this.CreateCustomerMock();
+            customer.AddBillingInformation(fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+
+            var billingInfo = customer.BillingInformation.FirstOrDefault();
+
+            Assert.NotNull(billingInfo);
+            Assert.Equal(fullName, billingInfo.FullName);
+            Assert.Equal(address, billingInfo.BillingAddress.Address);
+            Assert.Equal(city, billingInfo.BillingAddress.City);
+            Assert.Equal(postalCode, billingInfo.BillingAddress.PostalCode);
+            Assert.Equal(province, billingInfo.BillingAddress.Province);
+            Assert.Equal(country, billingInfo.BillingAddress.Country);
+            Assert.Equal(nationalIdentificationNumber, billingInfo.NationalIdentificationNumber);
+            Assert.Equal(vatNumber, billingInfo.VatNumber);
+            Assert.Equal(isDefault, billingInfo.IsDefault);
+        }
+        #endregion
+
+        #region ChangeBillingInfo tests
+        [Fact]
+        public void ChangeBillingInfo_Should_Throw_ArgumentException_If_BillingInfoId_Is_Empty()
+        {
+            Guid billingInfoId = Guid.Empty;
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(billingInfoId), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ChangeBillingInfo_Should_Throw_ArgumentException_If_FullName_Is_Empty(string fullName)
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(fullName), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ChangeBillingInfo_Should_Throw_ArgumentException_If_Address_Is_Empty(string address)
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            string fullName = "full name";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(address), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ChangeBillingInfo_Should_Throw_ArgumentException_If_City_Is_Empty(string city)
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            string fullName = "full name";
+            string address = "address";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(city), ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void ChangeBillingInfo_Should_Throw_ArgumentException_If_Province_Is_Empty(string province)
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(province), ex.ParamName);
+        }
+
+        [Fact]
+        public void ChangeBillingInfo_Should_Throw_ArgumentOutOfRangeException_If_BillingInfo_Is_Not_Found()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = false;
+
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault));
+            Assert.Equal(nameof(billingInfoId), ex.ParamName);
+        }
+
+        [Fact]
+        public void ChangeBillingInfo_Should_Reset_Default_Billing_Info_If_IsDefault_Is_True_And_Default_Billing_Info_Is_Different()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = true;
+
+            var customer = this.CreateCustomerMock();
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = Guid.NewGuid(),
+                BillingAddress = new PostalAddress
+                {
+                    Address = "address1",
+                    City = "city1",
+                    Country = "italy",
+                    PostalCode = "11111",
+                    Province = "province"
+                },
+                FullName = "full name1",
+                IsDefault = true,
+                NationalIdentificationNumber = "",
+                VatNumber = "0987654321"
+            });
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = billingInfoId,
+                BillingAddress = new PostalAddress
+                {
+                    Address = "address1",
+                    City = "city1",
+                    Country = "italy",
+                    PostalCode = "11111",
+                    Province = "province"
+                },
+                FullName = "full name1",
+                IsDefault = false,
+                NationalIdentificationNumber = "",
+                VatNumber = "0987654321"
+            });
+
+            customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+
+            var defaultBillingInfo = customer.BillingInformation.SingleOrDefault(b => b.IsDefault);
+
+            Assert.NotNull(defaultBillingInfo);
+            Assert.Equal(billingInfoId, defaultBillingInfo.Id);
+        }
+
+        [Fact]
+        public void ChangeBillingInfo_Should_Change_Billing_Info_With_Specified_Values()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "idnumber";
+            string vatNumber = "1234567890";
+            bool isDefault = true;
+
+            var customer = this.CreateCustomerMock();
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = billingInfoId,
+                BillingAddress = new PostalAddress
+                {
+                    Address = "address1",
+                    City = "city1",
+                    Country = "italy",
+                    PostalCode = "11111",
+                    Province = "province"
+                },
+                FullName = "full name1",
+                IsDefault = true,
+                NationalIdentificationNumber = "",
+                VatNumber = "0987654321"
+            });
+
+            customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+
+            var billingInfo = customer.BillingInformation.SingleOrDefault(b => b.Id == billingInfoId);
+
+            Assert.NotNull(billingInfo);
+            Assert.Equal(fullName, billingInfo.FullName);
+            Assert.Equal(address, billingInfo.BillingAddress.Address);
+            Assert.Equal(city, billingInfo.BillingAddress.City);
+            Assert.Equal(postalCode, billingInfo.BillingAddress.PostalCode);
+            Assert.Equal(province, billingInfo.BillingAddress.Province);
+            Assert.Equal(country, billingInfo.BillingAddress.Country);
+            Assert.Equal(nationalIdentificationNumber, billingInfo.NationalIdentificationNumber);
+            Assert.Equal(vatNumber, billingInfo.VatNumber);
+            Assert.Equal(isDefault, billingInfo.IsDefault);
+        }
+        #endregion
+
+        #region RemoveBillingInfo tests
+        [Fact]
+        public void RemoveBillingInfo_Should_Throw_ArgumentException_If_BillingInfoId_Is_Empty()
+        {
+            Guid billingInfoId = Guid.Empty;
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.RemoveBillingInfo(billingInfoId));
+            Assert.Equal(nameof(billingInfoId), ex.ParamName);
+        }
+
+        [Fact]
+        public void RemoveBillingInfo_Should_Throw_ArgumentOutOfRangeException_If_Billing_Info_Is_Not_Found()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => customer.RemoveBillingInfo(billingInfoId));
+            Assert.Equal(nameof(billingInfoId), ex.ParamName);
+        }
+
+        [Fact]
+        public void RemoveBillingInfo_Should_Throw_InvalidOperationException_If_Billing_Info_Is_Default()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            
+            var customer = this.CreateCustomerMock();
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = billingInfoId,
+                IsDefault = true
+            });
+
+            var ex = Assert.Throws<InvalidOperationException>(() => customer.RemoveBillingInfo(billingInfoId));
+            Assert.Equal("Cannot remove default billing info", ex.Message);
+        }
+
+        [Fact]
+        public void RemoveBillingInfo_Should_Remove_The_Specified_Billing_Info()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+
+            var customer = this.CreateCustomerMock();
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = billingInfoId,
+                IsDefault = false
+            });
+
+            customer.RemoveBillingInfo(billingInfoId);
+
+            Assert.True(customer.BillingInformation.All(b => b.Id != billingInfoId));
+        }
+        #endregion
+
+        #region MarkBillingInfoAsDefault tests
+        [Fact]
+        public void MarkBillingInfoAsDefault_Should_Throw_ArgumentException_If_BillingInfoId_Is_Empty()
+        {
+            Guid billingInfoId = Guid.Empty;
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentException>(() => customer.MarkBillingInfoAsDefault(billingInfoId));
+            Assert.Equal(nameof(billingInfoId), ex.ParamName);
+        }
+
+        [Fact]
+        public void MarkBillingInfoAsDefault_Should_Throw_ArgumentOutOfRangeException_If_Billing_Info_Is_Not_Found()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+            var customer = this.CreateCustomerMock();
+
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => customer.MarkBillingInfoAsDefault(billingInfoId));
+            Assert.Equal(nameof(billingInfoId), ex.ParamName);
+        }
+
+        [Fact]
+        public void MarkBillingInfoAsDefault_Should_Reset_The_Default_Billing_Info_If_Exists_Already()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+
+            var customer = this.CreateCustomerMock();
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = Guid.NewGuid(),
+                IsDefault = true
+            });
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = billingInfoId,
+                IsDefault = false
+            });
+
+            customer.MarkBillingInfoAsDefault(billingInfoId);
+
+            var defaultBillingInfo = customer.BillingInformation.SingleOrDefault(b => b.IsDefault);
+
+            Assert.NotNull(defaultBillingInfo);
+            Assert.Equal(billingInfoId, defaultBillingInfo.Id);
+        }
+
+        [Fact]
+        public void MarkBillingInfoAsDefault_Should_Set_The_Specified_Billing_Info_As_Default()
+        {
+            Guid billingInfoId = Guid.NewGuid();
+
+            var customer = this.CreateCustomerMock();
+            customer.BillingInformation.Add(new BillingInfo
+            {
+                Id = billingInfoId,
+                IsDefault = false
+            });
+
+            customer.MarkBillingInfoAsDefault(billingInfoId);
+
+            var billingInfo = customer.BillingInformation.SingleOrDefault(b => b.Id == billingInfoId);
+
+            Assert.NotNull(billingInfo);
+            Assert.True(billingInfo.IsDefault);
+        }
+        #endregion
+
         #region Private customer mock
         private Customer CreateCustomerMock()
         {

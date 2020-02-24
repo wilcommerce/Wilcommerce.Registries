@@ -7,6 +7,7 @@ namespace Wilcommerce.Registries.Models
     /// </summary>
     public class BillingInfo
     {
+        #region Properties
         /// <summary>
         /// Get or set the billing information id
         /// </summary>
@@ -36,5 +37,11 @@ namespace Wilcommerce.Registries.Models
         /// Get or set whether the current billing info is the default used
         /// </summary>
         public bool IsDefault { get; set; }
+
+        /// <summary>
+        /// Get or set the associated customer
+        /// </summary>
+        public virtual Customer Customer { get; protected set; }
+        #endregion
     }
 }

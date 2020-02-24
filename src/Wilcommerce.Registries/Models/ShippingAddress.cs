@@ -22,6 +22,11 @@ namespace Wilcommerce.Registries.Models
         /// Get or set whether is the default shipping address
         /// </summary>
         public bool IsDefault { get; set; }
+
+        /// <summary>
+        /// Get or set the associated customer
+        /// </summary>
+        public virtual Customer Customer { get; protected set; }
         #endregion
     }
 }

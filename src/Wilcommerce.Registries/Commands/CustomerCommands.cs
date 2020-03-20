@@ -396,8 +396,21 @@ namespace Wilcommerce.Registries.Commands
                 throw new ArgumentOutOfRangeException(nameof(customerId));
             }
 
-            customer.Delete();
-            await Repository.SaveChangesAsync();
+            try
+            {
+                customer.Delete();
+                if (customer.HasAccount)
+                {
+                    await AuthClient.DisableAccount(customer.Account.UserId);
+                    customer.LockAccount();
+                }
+
+                await Repository.SaveChangesAsync();
+            }
+            catch 
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -494,13 +507,30 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="vatNumber">The company vat number</param>
         /// <param name="nationalIdentificationNumber">The company national identification number</param>
         /// <returns></returns>
-        public Task RegisterNewCompany(string companyName, string vatNumber, string nationalIdentificationNumber)
+        public async Task RegisterNewCompany(string companyName, string vatNumber, string nationalIdentificationNumber)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(companyName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(companyName));
+            }
+
+            if (string.IsNullOrWhiteSpace(vatNumber))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(vatNumber));
+            }
+
+            var company = Company.Register(companyName, vatNumber);
+            if (!string.IsNullOrWhiteSpace(nationalIdentificationNumber))
+            {
+                company.SetNationalIdentificationNumber(nationalIdentificationNumber);
+            }
+
+            Repository.Add(company);
+            await Repository.SaveChangesAsync();
         }
 
         /// <summary>
-        /// Implementation of <see cref="ICustomerCommands.RegisterNewCompany(string, string, string, string, string)"/>
+        /// Implementation of <see cref="ICustomerCommands.RegisterNewCompanyWithAccount(string, string, string, string, string)"/>
         /// </summary>
         /// <param name="companyName">The company name</param>
         /// <param name="vatNumber">The company vat number</param>
@@ -508,9 +538,44 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="userName">The username</param>
         /// <param name="password">The password</param>
         /// <returns></returns>
-        public Task RegisterNewCompany(string companyName, string vatNumber, string nationalIdentificationNumber, string userName, string password)
+        public async Task RegisterNewCompanyWithAccount(string companyName, string vatNumber, string nationalIdentificationNumber, string userName, string password)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(companyName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(companyName));
+            }
+
+            if (string.IsNullOrWhiteSpace(vatNumber))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(vatNumber));
+            }
+
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(userName));
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(password));
+            }
+
+            try
+            {
+                var userId = await AuthClient.RegisterNewAccount(userName, password);
+                var company = Company.RegisterWithAccount(companyName, vatNumber, userId, userName);
+                if (!string.IsNullOrWhiteSpace(nationalIdentificationNumber))
+                {
+                    company.SetNationalIdentificationNumber(nationalIdentificationNumber);
+                }
+
+                Repository.Add(company);
+                await Repository.SaveChangesAsync();
+            }
+            catch 
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -522,13 +587,35 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="gender">The gender</param>
         /// <param name="birthDate">The birth date</param>
         /// <returns></returns>
-        public Task RegisterNewPerson(string firstName, string lastName, string nationalIdentificationNumber, Gender gender, DateTime birthDate)
+        public async Task RegisterNewPerson(string firstName, string lastName, string nationalIdentificationNumber, Gender gender, DateTime birthDate)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(firstName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(firstName));
+            }
+
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(lastName));
+            }
+
+            if (birthDate >= DateTime.Today)
+            {
+                throw new ArgumentException("Birth date cannot be after today", nameof(birthDate));
+            }
+
+            var person = Person.Register(firstName, lastName, gender, birthDate);
+            if (!string.IsNullOrWhiteSpace(nationalIdentificationNumber))
+            {
+                person.SetNationalIdentificationNumber(nationalIdentificationNumber);
+            }
+
+            Repository.Add(person);
+            await Repository.SaveChangesAsync();
         }
 
         /// <summary>
-        /// Implementation of <see cref="ICustomerCommands.RegisterNewPerson(string, string, string, Gender, DateTime, string, string)"/>
+        /// Implementation of <see cref="ICustomerCommands.RegisterNewPersonWithAccount(string, string, string, Gender, DateTime, string, string)"/>
         /// </summary>
         /// <param name="firstName">The first name</param>
         /// <param name="lastName">The last name</param>
@@ -538,9 +625,49 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="userName">The username</param>
         /// <param name="password">The password</param>
         /// <returns></returns>
-        public Task RegisterNewPerson(string firstName, string lastName, string nationalIdentificationNumber, Gender gender, DateTime birthDate, string userName, string password)
+        public async Task RegisterNewPersonWithAccount(string firstName, string lastName, string nationalIdentificationNumber, Gender gender, DateTime birthDate, string userName, string password)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(firstName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(firstName));
+            }
+
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(lastName));
+            }
+
+            if (birthDate >= DateTime.Today)
+            {
+                throw new ArgumentException("Birth date cannot be after today", nameof(birthDate));
+            }
+
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(userName));
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(password));
+            }
+
+            try
+            {
+                var userId = await AuthClient.RegisterNewAccount(userName, password);
+                var person = Person.RegisterWithAccount(firstName, lastName, gender, birthDate, userId, userName);
+                if (!string.IsNullOrWhiteSpace(nationalIdentificationNumber))
+                {
+                    person.SetNationalIdentificationNumber(nationalIdentificationNumber);
+                }
+
+                Repository.Add(person);
+                await Repository.SaveChangesAsync();
+            }
+            catch 
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -548,9 +675,32 @@ namespace Wilcommerce.Registries.Commands
         /// </summary>
         /// <param name="customerId">The customer id</param>
         /// <returns></returns>
-        public Task RemoveCustomerAccount(Guid customerId)
+        public async Task RemoveCustomerAccount(Guid customerId)
         {
-            throw new NotImplementedException();
+            if (customerId == Guid.Empty)
+            {
+                throw new ArgumentException("value cannot be empty", nameof(customerId));
+            }
+
+            var customer = await Repository.GetByKeyAsync<Customer>(customerId);
+            if (customer == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customerId));
+            }
+
+            try
+            {
+                var accountId = customer.Account.UserId;
+
+                customer.RemoveAccount();
+                await AuthClient.DisableAccount(accountId);
+
+                await Repository.SaveChangesAsync();
+            }
+            catch 
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -559,9 +709,26 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="customerId">The customer id</param>
         /// <param name="billingInfoId">The billing info id</param>
         /// <returns></returns>
-        public Task RemoveCustomerBillingInformation(Guid customerId, Guid billingInfoId)
+        public async Task RemoveCustomerBillingInformation(Guid customerId, Guid billingInfoId)
         {
-            throw new NotImplementedException();
+            if (customerId == Guid.Empty)
+            {
+                throw new ArgumentException("value cannot be empty", nameof(customerId));
+            }
+
+            if (billingInfoId == Guid.Empty)
+            {
+                throw new ArgumentException("value cannot be empty", nameof(billingInfoId));
+            }
+
+            var customer = await Repository.GetByKeyAsync<Customer>(customerId);
+            if (customer == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customerId));
+            }
+
+            customer.RemoveBillingInfo(billingInfoId);
+            await Repository.SaveChangesAsync();
         }
 
         /// <summary>
@@ -570,9 +737,26 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="customerId">The customer id</param>
         /// <param name="addressId">The address id</param>
         /// <returns></returns>
-        public Task RemoveCustomerShippingAddress(Guid customerId, Guid addressId)
+        public async Task RemoveCustomerShippingAddress(Guid customerId, Guid addressId)
         {
-            throw new NotImplementedException();
+            if (customerId == Guid.Empty)
+            {
+                throw new ArgumentException("value cannot be empty", nameof(customerId));
+            }
+
+            if (addressId == Guid.Empty)
+            {
+                throw new ArgumentException("value cannot be empty", nameof(addressId));
+            }
+
+            var customer = await Repository.GetByKeyAsync<Customer>(customerId);
+            if (customer == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customerId));
+            }
+
+            customer.RemoveShippingAddress(addressId);
+            await Repository.SaveChangesAsync();
         }
 
         /// <summary>
@@ -580,9 +764,34 @@ namespace Wilcommerce.Registries.Commands
         /// </summary>
         /// <param name="customerId">The customer id</param>
         /// <returns></returns>
-        public Task RestoreCustomer(Guid customerId)
+        public async Task RestoreCustomer(Guid customerId)
         {
-            throw new NotImplementedException();
+            if (customerId == Guid.Empty)
+            {
+                throw new ArgumentException("value cannot be empty", nameof(customerId));
+            }
+
+            var customer = await Repository.GetByKeyAsync<Customer>(customerId);
+            if (customer == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customerId));
+            }
+
+            try
+            {
+                customer.Restore();
+                if (customer.HasAccount && customer.Account.IsLocked)
+                {
+                    await AuthClient.EnableAccount(customer.Account.UserId);
+                    customer.UnlockAccount();
+                }
+
+                await Repository.SaveChangesAsync();
+            }
+            catch 
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -592,9 +801,40 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="userName">The username</param>
         /// <param name="password">The password</param>
         /// <returns></returns>
-        public Task SetCustomerAccount(Guid customerId, string userName, string password)
+        public async Task SetCustomerAccount(Guid customerId, string userName, string password)
         {
-            throw new NotImplementedException();
+            if (customerId == Guid.Empty)
+            {
+                throw new ArgumentException("value cannot be empty", nameof(customerId));
+            }
+
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(userName));
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(password));
+            }
+
+            var customer = await Repository.GetByKeyAsync<Customer>(customerId);
+            if (customer == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customerId));
+            }
+
+            try
+            {
+                var userId = await AuthClient.FindOrRegisterAccount(userName, password);
+                customer.SetAccount(userId, userName);
+
+                await Repository.SaveChangesAsync();
+            }
+            catch 
+            {
+                throw;
+            }
         }
     }
 }

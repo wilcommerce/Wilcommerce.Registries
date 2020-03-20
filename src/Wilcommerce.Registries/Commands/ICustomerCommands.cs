@@ -32,7 +32,7 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="userName">The username</param>
         /// <param name="password">The password</param>
         /// <returns></returns>
-        Task RegisterNewPerson(string firstName, string lastName, string nationalIdentificationNumber, Gender gender, DateTime birthDate, string userName, string password);
+        Task RegisterNewPersonWithAccount(string firstName, string lastName, string nationalIdentificationNumber, Gender gender, DateTime birthDate, string userName, string password);
 
         /// <summary>
         /// Change the person general information
@@ -66,7 +66,7 @@ namespace Wilcommerce.Registries.Commands
         /// <param name="userName">The username</param>
         /// <param name="password">The password</param>
         /// <returns></returns>
-        Task RegisterNewCompany(string companyName, string vatNumber, string nationalIdentificationNumber, string userName, string password);
+        Task RegisterNewCompanyWithAccount(string companyName, string vatNumber, string nationalIdentificationNumber, string userName, string password);
 
         /// <summary>
         /// Change the company general info

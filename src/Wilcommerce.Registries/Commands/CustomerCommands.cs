@@ -385,6 +385,9 @@ namespace Wilcommerce.Registries.Commands
             }
 
             await Repository.SaveChangesAsync();
+
+            var @event = new PersonInfoChangedEvent(customerId, firstName, lastName, nationalIdentificationNumber, gender, birthDate);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -536,6 +539,9 @@ namespace Wilcommerce.Registries.Commands
 
             Repository.Add(company);
             await Repository.SaveChangesAsync();
+
+            var @event = new CompanyRegisteredEvent(company.Id, companyName, vatNumber);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -580,6 +586,9 @@ namespace Wilcommerce.Registries.Commands
 
                 Repository.Add(company);
                 await Repository.SaveChangesAsync();
+
+                var @event = new CompanyRegisteredWithAccountEvent(company.Id, companyName, vatNumber, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -675,6 +684,9 @@ namespace Wilcommerce.Registries.Commands
 
                 Repository.Add(person);
                 await Repository.SaveChangesAsync();
+
+                var @event = new PersonRegisteredWithAccountEvent(person.Id, firstName, lastName, gender, birthDate, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {

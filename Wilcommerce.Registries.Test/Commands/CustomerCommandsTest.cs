@@ -1122,6 +1122,33 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(gender, customer.Gender);
             Assert.Equal(birthDate, customer.BirthDate);
         }
+
+        [Fact]
+        public async Task ChangePersonInfo_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            var customer = Person.Register("name", "surname", Gender.Female, new DateTime(1980, 1, 3));
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Person>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            string firstName = "first";
+            string lastName = "lastname";
+            string nationalIdentificationNumber = "number";
+            Gender gender = Gender.Female;
+            DateTime birthDate = new DateTime(1980, 1, 1);
+
+            await commands.ChangePersonInfo(customerId, firstName, lastName, nationalIdentificationNumber, gender, birthDate);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<PersonInfoChangedEvent>()));
+        }
         #endregion
 
         #region DeleteCustomer tests
@@ -1468,6 +1495,25 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(vatNumber, companies.First().VatNumber);
             Assert.Equal(nationalIdentificationNumber, companies.First().NationalIdentificationNumber);
         }
+
+        [Fact]
+        public async Task RegisterNewCompany_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = new Mock<IRepository>().Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            string companyName = "company";
+            string vatNumber = "1234567890";
+            string nationalIdentificationNumber = "1234567890";
+
+            await commands.RegisterNewCompany(companyName, vatNumber, nationalIdentificationNumber);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CompanyRegisteredEvent>()));
+        }
         #endregion
 
         #region RegisterNewCompanyWithAccount tests
@@ -1584,6 +1630,31 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(nationalIdentificationNumber, companies.First().NationalIdentificationNumber);
             Assert.NotEqual(Guid.Empty, companies.First().Account.UserId);
             Assert.Equal(userName, companies.First().Account.UserName);
+        }
+
+        [Fact]
+        public async Task RegisterNewCompanyWithAccount_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            var authClientMock = new Mock<IAuthClient>();
+            authClientMock.Setup(a => a.RegisterNewAccount(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(Guid.NewGuid()));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = new Mock<IRepository>().Object;
+            var authClient = authClientMock.Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            string companyName = "company";
+            string vatNumber = "1234567890";
+            string nationalIdentificationNumber = "1234567890";
+            string userName = "username";
+            string password = "password";
+
+            await commands.RegisterNewCompanyWithAccount(companyName, vatNumber, nationalIdentificationNumber, userName, password);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CompanyRegisteredWithAccountEvent>()));
         }
         #endregion
 
@@ -1845,6 +1916,33 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(birthDate, people.First().BirthDate);
             Assert.NotEqual(Guid.Empty, people.First().Account.UserId);
             Assert.Equal(userName, people.First().Account.UserName);
+        }
+
+        [Fact]
+        public async Task RegisterNewPersonWithAccount_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            var authClientMock = new Mock<IAuthClient>();
+            authClientMock.Setup(a => a.RegisterNewAccount(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(Guid.NewGuid()));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = new Mock<IRepository>().Object;
+            var authClient = authClientMock.Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            string firstName = "firstname";
+            string lastName = "lastname";
+            string nationalIdentificationNumber = "number";
+            Gender gender = Gender.Female;
+            DateTime birthDate = new DateTime(1980, 1, 1);
+            string userName = "username";
+            string password = "password";
+
+            await commands.RegisterNewPersonWithAccount(firstName, lastName, nationalIdentificationNumber, gender, birthDate, userName, password);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<PersonRegisteredWithAccountEvent>()));
         }
         #endregion
 

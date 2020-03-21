@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Wilcommerce.Registries.Commands;
+using Wilcommerce.Registries.Events.Customer;
 using Wilcommerce.Registries.Models;
 using Wilcommerce.Registries.Repository;
 using Wilcommerce.Registries.Services;
@@ -19,8 +20,9 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             IRepository repository = null;
             IAuthClient authClient = new Mock<IAuthClient>().Object;
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
 
-            var ex = Assert.Throws<ArgumentNullException>(() => new CustomerCommands(repository, authClient));
+            var ex = Assert.Throws<ArgumentNullException>(() => new CustomerCommands(repository, authClient, eventBus));
             Assert.Equal(nameof(repository), ex.ParamName);
         }
 
@@ -29,9 +31,21 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             IRepository repository = new Mock<IRepository>().Object;
             IAuthClient authClient = null;
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
 
-            var ex = Assert.Throws<ArgumentNullException>(() => new CustomerCommands(repository, authClient));
+            var ex = Assert.Throws<ArgumentNullException>(() => new CustomerCommands(repository, authClient, eventBus));
             Assert.Equal(nameof(authClient), ex.ParamName);
+        }
+
+        [Fact]
+        public void Ctor_Should_Throw_ArgumentNullException_If_EventBus_Is_Null()
+        {
+            IRepository repository = new Mock<IRepository>().Object;
+            IAuthClient authClient = new Mock<IAuthClient>().Object;
+            Core.Infrastructure.IEventBus eventBus = null;
+
+            var ex = Assert.Throws<ArgumentNullException>(() => new CustomerCommands(repository, authClient, eventBus));
+            Assert.Equal(nameof(eventBus), ex.ParamName);
         }
         #endregion
 
@@ -41,7 +55,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             string fullName = "fullname";
@@ -66,7 +81,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -90,7 +106,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string fullName = "full name";
@@ -114,7 +131,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string fullName = "full name";
@@ -138,7 +156,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string fullName = "full name";
@@ -159,7 +178,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string fullName = "full name";
@@ -187,7 +207,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string fullName = "full name";
@@ -224,7 +245,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             string address = "address";
@@ -246,7 +268,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string city = "city";
@@ -267,7 +290,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -288,7 +312,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -306,7 +331,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -331,7 +357,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -362,7 +389,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             string companyName = "Company";
@@ -381,7 +409,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string vatNumber = "1234567890";
@@ -399,7 +428,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string companyName = "Company";
@@ -414,7 +444,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string companyName = "Company";
@@ -436,7 +467,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             string companyName = "Company";
@@ -458,7 +490,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             string address = "address";
@@ -479,7 +512,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string city = "city";
@@ -499,7 +533,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -519,7 +554,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -536,7 +572,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -560,7 +597,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string address = "address";
@@ -586,7 +624,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             Guid billingInfoId = Guid.NewGuid();
@@ -609,7 +648,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.Empty;
@@ -635,7 +675,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.NewGuid();
@@ -660,7 +701,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.NewGuid();
@@ -685,7 +727,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.NewGuid();
@@ -710,7 +753,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.NewGuid();
@@ -732,7 +776,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.NewGuid();
@@ -762,7 +807,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             Guid billingInfoId = customer.BillingInformation.First().Id;
@@ -800,7 +846,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             Guid addressId = Guid.NewGuid();
@@ -820,7 +867,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.Empty;
@@ -843,7 +891,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.NewGuid();
@@ -865,7 +914,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.NewGuid();
@@ -887,7 +937,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.NewGuid();
@@ -906,7 +957,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.NewGuid();
@@ -933,7 +985,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             Guid addressId = customer.ShippingAddresses.First().Id;
@@ -965,7 +1018,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             string firstName = "first";
@@ -986,7 +1040,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string lastName = "lastname";
@@ -1006,7 +1061,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string firstName = "first";
@@ -1023,7 +1079,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string firstName = "first";
@@ -1046,7 +1103,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             string firstName = "first";
@@ -1072,7 +1130,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
 
@@ -1085,7 +1144,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
 
@@ -1104,7 +1164,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
 
@@ -1127,7 +1188,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = authClientMock.Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
 
@@ -1144,7 +1206,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
 
@@ -1157,7 +1220,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
 
@@ -1177,7 +1241,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = authClientMock.Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             await commands.LockCustomerAccount(customerId);
@@ -1194,8 +1259,9 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
 
-            var commands = new CustomerCommands(repository, authClient);
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             Guid billingInfoId = Guid.NewGuid();
@@ -1209,8 +1275,9 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
 
-            var commands = new CustomerCommands(repository, authClient);
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.Empty;
@@ -1224,8 +1291,9 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
 
-            var commands = new CustomerCommands(repository, authClient);
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.NewGuid();
@@ -1246,8 +1314,9 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
 
-            var commands = new CustomerCommands(repository, authClient);
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             Guid billingInfoId = customer.BillingInformation.First().Id;
@@ -1268,7 +1337,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             Guid addressId = Guid.NewGuid();
@@ -1282,7 +1352,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.Empty;
@@ -1296,7 +1367,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.NewGuid();
@@ -1317,7 +1389,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             Guid addressId = customer.ShippingAddresses.First().Id;
@@ -1341,7 +1414,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string vatNumber = "1234567890";
             string nationalIdentificationNumber = "1234567890";
@@ -1358,7 +1432,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string companyName = "company";
             string nationalIdentificationNumber = "1234567890";
@@ -1378,7 +1453,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string companyName = "company";
             string vatNumber = "1234567890";
@@ -1403,7 +1479,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string vatNumber = "1234567890";
             string nationalIdentificationNumber = "1234567890";
@@ -1422,7 +1499,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string companyName = "company";
             string nationalIdentificationNumber = "1234567890";
@@ -1441,7 +1519,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string companyName = "company";
             string vatNumber = "1234567890";
@@ -1460,7 +1539,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string companyName = "company";
             string vatNumber = "1234567890";
@@ -1486,7 +1566,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = authClientMock.Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string companyName = "company";
             string vatNumber = "1234567890";
@@ -1515,7 +1596,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string lastName = "lastname";
             string nationalIdentificationNumber = "number";
@@ -1534,7 +1616,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string nationalIdentificationNumber = "number";
@@ -1550,7 +1633,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string lastName = "lastname";
@@ -1573,7 +1657,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string lastName = "lastname";
@@ -1590,6 +1675,27 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(gender, people.First().Gender);
             Assert.Equal(birthDate, people.First().BirthDate);
         }
+
+        [Fact]
+        public async Task RegisterNewPerson_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = new Mock<IRepository>().Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            string firstName = "firstname";
+            string lastName = "lastname";
+            string nationalIdentificationNumber = "number";
+            Gender gender = Gender.Female;
+            DateTime birthDate = new DateTime(1980, 1, 1);
+
+            await commands.RegisterNewPerson(firstName, lastName, nationalIdentificationNumber, gender, birthDate);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<PersonRegisteredEvent>()));
+        }
         #endregion
 
         #region RegisterNewPersonWithAccount tests
@@ -1601,7 +1707,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string lastName = "lastname";
             string nationalIdentificationNumber = "number";
@@ -1622,7 +1729,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string nationalIdentificationNumber = "number";
@@ -1640,7 +1748,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string lastName = "lastname";
@@ -1662,7 +1771,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string lastName = "lastname";
@@ -1683,7 +1793,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string lastName = "lastname";
@@ -1711,7 +1822,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = authClientMock.Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             string firstName = "firstname";
             string lastName = "lastname";
@@ -1742,7 +1854,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
 
@@ -1755,7 +1868,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
 
@@ -1777,7 +1891,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = authClientMock.Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
 
@@ -1796,7 +1911,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             Guid billingInfoId = Guid.NewGuid();
@@ -1810,7 +1926,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.Empty;
@@ -1824,7 +1941,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid billingInfoId = Guid.NewGuid();
@@ -1845,7 +1963,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             Guid billingInfoId = customer.BillingInformation.First().Id;
@@ -1863,7 +1982,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             Guid addressId = Guid.NewGuid();
@@ -1877,7 +1997,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.Empty;
@@ -1891,7 +2012,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             Guid addressId = Guid.NewGuid();
@@ -1912,7 +2034,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
             Guid addressId = customer.ShippingAddresses.First().Id;
@@ -1930,7 +2053,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
 
@@ -1943,7 +2067,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
 
@@ -1963,7 +2088,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
 
@@ -1988,7 +2114,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = authClientMock.Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = customer.Id;
 
@@ -2005,7 +2132,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.Empty;
             string userName = "username";
@@ -2023,7 +2151,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string password = "password";
@@ -2040,7 +2169,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string userName = "username";
@@ -2054,7 +2184,8 @@ namespace Wilcommerce.Registries.Test.Commands
         {
             var repository = new Mock<IRepository>().Object;
             var authClient = new Mock<IAuthClient>().Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string userName = "username";
@@ -2079,7 +2210,8 @@ namespace Wilcommerce.Registries.Test.Commands
 
             var repository = repositoryMock.Object;
             var authClient = authClientMock.Object;
-            var commands = new CustomerCommands(repository, authClient);
+            var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
 
             Guid customerId = Guid.NewGuid();
             string userName = "username";

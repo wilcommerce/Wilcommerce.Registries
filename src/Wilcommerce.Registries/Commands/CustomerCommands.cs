@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Wilcommerce.Core.Infrastructure;
+using Wilcommerce.Registries.Events.Customer;
 using Wilcommerce.Registries.Models;
 using Wilcommerce.Registries.Repository;
 using Wilcommerce.Registries.Services;
@@ -14,7 +16,7 @@ namespace Wilcommerce.Registries.Commands
         /// <summary>
         /// Get the repository
         /// </summary>
-        public IRepository Repository { get; }
+        public Repository.IRepository Repository { get; }
         
         /// <summary>
         /// Get the auth client
@@ -22,14 +24,21 @@ namespace Wilcommerce.Registries.Commands
         public IAuthClient AuthClient { get; }
 
         /// <summary>
+        /// Get the event bus
+        /// </summary>
+        public IEventBus EventBus { get; }
+
+        /// <summary>
         /// Construct the customer commands
         /// </summary>
         /// <param name="repository">The repository instance</param>
-        /// <param name="authClient"></param>
-        public CustomerCommands(IRepository repository, IAuthClient authClient)
+        /// <param name="authClient">The auth client instance</param>
+        /// <param name="eventBus">The event bus instance</param>
+        public CustomerCommands(Repository.IRepository repository, IAuthClient authClient, IEventBus eventBus)
         {
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
             AuthClient = authClient ?? throw new ArgumentNullException(nameof(authClient));
+            EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         /// <summary>
@@ -612,6 +621,9 @@ namespace Wilcommerce.Registries.Commands
 
             Repository.Add(person);
             await Repository.SaveChangesAsync();
+
+            var @event = new PersonRegisteredEvent(person.Id, firstName, lastName, gender, birthDate);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>

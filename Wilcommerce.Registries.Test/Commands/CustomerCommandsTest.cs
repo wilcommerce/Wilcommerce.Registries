@@ -14,7 +14,7 @@ namespace Wilcommerce.Registries.Test.Commands
 {
     public class CustomerCommandsTest
     {
-        #region Constrcutor tests
+        #region Constructor tests
         [Fact]
         public void Ctor_Should_Throw_ArgumentNullException_If_Repository_Is_Null()
         {
@@ -237,6 +237,38 @@ namespace Wilcommerce.Registries.Test.Commands
                 Assert.Equal(isDefault, b.IsDefault);
             });
         }
+
+        [Fact]
+        public async Task AddCustomerBillingInformation_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("Company", "1234567890");
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = Guid.NewGuid();
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "";
+            string vatNumber = "1234567890";
+            bool isDefault = true;
+
+            await commands.AddCustomerBillingInformation(customerId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<BillingInformationAddedEvent>()));
+        }
         #endregion
 
         #region AddCustomerShippingAddress tests
@@ -380,6 +412,35 @@ namespace Wilcommerce.Registries.Test.Commands
                 Assert.Equal(country, s.AddressInfo.Country);
                 Assert.Equal(isDefault, s.IsDefault);
             });
+        }
+
+        [Fact]
+        public async Task AddCustomerShippingAddress_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = Guid.NewGuid();
+            string address = "address";
+            string city = "city";
+            string postalCode = "postalCode";
+            string province = "province";
+            string country = "italy";
+            bool isDefault = true;
+
+            await commands.AddCustomerShippingAddress(customerId, address, city, postalCode, province, country, isDefault);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<ShippingAddressAddedEvent>()));
         }
         #endregion
 
@@ -892,6 +953,40 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(vatNumber, billingInfo.VatNumber);
             Assert.Equal(isDefault, billingInfo.IsDefault);
         }
+
+        [Fact]
+        public async Task ChangeCustomerBillingInformation_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("Company", "1234567890");
+            customer.AddBillingInformation("my name", "address1", "city1", "00000", "province", "italy", "", "0987654321", true);
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            Guid billingInfoId = customer.BillingInformation.First().Id;
+            string fullName = "full name";
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            string nationalIdentificationNumber = "";
+            string vatNumber = "1234567890";
+            bool isDefault = true;
+
+            await commands.ChangeCustomerBillingInformation(customerId, billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<BillingInformationChangedEvent>()));
+        }
         #endregion
 
         #region ChangeCustomerShippingAddress tests
@@ -1063,6 +1158,37 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(province, shippingAddress.AddressInfo.Province);
             Assert.Equal(country, shippingAddress.AddressInfo.Country);
             Assert.Equal(isDefault, shippingAddress.IsDefault);
+        }
+
+        [Fact]
+        public async Task ChangeCustomerShippingAddress_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Person.Register("Name", "lastname", Gender.Female, new DateTime(1980, 1, 1));
+            customer.AddShippingAddress("address1", "city1", "00000", "province", "italy", true);
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            Guid addressId = customer.ShippingAddresses.First().Id;
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+            bool isDefault = true;
+
+            await commands.ChangeCustomerShippingAddress(customerId, addressId, address, city, postalCode, province, country, isDefault);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<ShippingAddressChangedEvent>()));
         }
         #endregion
 
@@ -1454,6 +1580,32 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.NotNull(billingInfo);
             Assert.True(billingInfo.IsDefault);
         }
+
+        [Fact]
+        public async Task MarkCustomerBillingInformationAsDefault_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+            customer.AddBillingInformation("full name", "address", "city", "12345", "province", "italy", "", "1234567890", false);
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            Guid billingInfoId = customer.BillingInformation.First().Id;
+
+            await commands.MarkCustomerBillingInformationAsDefault(customerId, billingInfoId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<BillingInformationMarkedAsDefaultEvent>()));
+        }
         #endregion
 
         #region MarkCustomerShippingAddressAsDefault tests
@@ -1527,6 +1679,31 @@ namespace Wilcommerce.Registries.Test.Commands
             repositoryMock.Verify(r => r.SaveChangesAsync());
             Assert.NotNull(shippingAddress);
             Assert.True(shippingAddress.IsDefault);
+        }
+
+        [Fact]
+        public async Task MarkCustomerShippingAddressAsDefault_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+            customer.AddShippingAddress("address", "city", "12345", "province", "italy", false);
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            Guid addressId = customer.ShippingAddresses.First().Id;
+
+            await commands.MarkCustomerShippingAddressAsDefault(customerId, addressId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<ShippingAddressMarkedAsDefaultEvent>()));
         }
         #endregion
 
@@ -2194,6 +2371,31 @@ namespace Wilcommerce.Registries.Test.Commands
             repositoryMock.Verify(r => r.SaveChangesAsync());
             Assert.True(customer.BillingInformation.All(b => b.Id != billingInfoId));
         }
+
+        [Fact]
+        public async Task RemoveCustomerBillingInformation_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+            customer.AddBillingInformation("full name", "address", "city", "12345", "province", "italy", "", "1234567890", false);
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            Guid billingInfoId = customer.BillingInformation.First().Id;
+
+            await commands.RemoveCustomerBillingInformation(customerId, billingInfoId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<BillingoInformationRemovedEvent>()));
+        }
         #endregion
 
         #region RemoveCustomerShippingAddress tests
@@ -2264,6 +2466,31 @@ namespace Wilcommerce.Registries.Test.Commands
 
             repositoryMock.Verify(r => r.SaveChangesAsync());
             Assert.True(customer.ShippingAddresses.All(s => s.Id != addressId));
+        }
+
+        [Fact]
+        public async Task RemoveCustomerShippingAddress_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+            customer.AddShippingAddress("address", "city", "12345", "province", "italy", false);
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            Guid addressId = customer.ShippingAddresses.First().Id;
+
+            await commands.RemoveCustomerShippingAddress(customerId, addressId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<ShippingAddressRemovedEvent>()));
         }
         #endregion
 

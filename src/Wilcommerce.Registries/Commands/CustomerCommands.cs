@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Wilcommerce.Core.Infrastructure;
+using Wilcommerce.Registries.Events.Customer;
 using Wilcommerce.Registries.Models;
 using Wilcommerce.Registries.Repository;
 using Wilcommerce.Registries.Services;
@@ -14,7 +16,7 @@ namespace Wilcommerce.Registries.Commands
         /// <summary>
         /// Get the repository
         /// </summary>
-        public IRepository Repository { get; }
+        public Repository.IRepository Repository { get; }
         
         /// <summary>
         /// Get the auth client
@@ -22,14 +24,21 @@ namespace Wilcommerce.Registries.Commands
         public IAuthClient AuthClient { get; }
 
         /// <summary>
+        /// Get the event bus
+        /// </summary>
+        public IEventBus EventBus { get; }
+
+        /// <summary>
         /// Construct the customer commands
         /// </summary>
         /// <param name="repository">The repository instance</param>
-        /// <param name="authClient"></param>
-        public CustomerCommands(IRepository repository, IAuthClient authClient)
+        /// <param name="authClient">The auth client instance</param>
+        /// <param name="eventBus">The event bus instance</param>
+        public CustomerCommands(Repository.IRepository repository, IAuthClient authClient, IEventBus eventBus)
         {
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
             AuthClient = authClient ?? throw new ArgumentNullException(nameof(authClient));
+            EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         /// <summary>
@@ -81,6 +90,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.AddBillingInformation(fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
             await Repository.SaveChangesAsync();
+
+            var @event = new BillingInformationAddedEvent(customerId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -124,6 +136,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.AddShippingAddress(address, city, postalCode, province, country, isDefault);
             await Repository.SaveChangesAsync();
+
+            var @event = new ShippingAddressAddedEvent(customerId, address, city, postalCode, province, country, isDefault);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -171,6 +186,9 @@ namespace Wilcommerce.Registries.Commands
             }
 
             await Repository.SaveChangesAsync();
+
+            var @event = new CompanyInfoChangedEvent(customerId, companyName, vatNumber, nationalIdentificationNumber);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -213,6 +231,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.ChangeLegalAddress(address, city, postalCode, province, country);
             await Repository.SaveChangesAsync();
+
+            var @event = new CompanyLegalAddressChangedEvent(customerId, address, city, postalCode, province, country);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -270,6 +291,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.ChangeBillingInfo(billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
             await Repository.SaveChangesAsync();
+
+            var @event = new BillingInformationChangedEvent(customerId, billingInfoId, fullName, address, city, postalCode, province, country, nationalIdentificationNumber, vatNumber, isDefault);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -319,6 +343,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.ChangeShippingAddress(addressId, address, city, postalCode, province, country, isDefault);
             await Repository.SaveChangesAsync();
+
+            var @event = new ShippingAddressChangedEvent(customerId, addressId, address, city, postalCode, province, country, isDefault);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -376,6 +403,9 @@ namespace Wilcommerce.Registries.Commands
             }
 
             await Repository.SaveChangesAsync();
+
+            var @event = new PersonInfoChangedEvent(customerId, firstName, lastName, nationalIdentificationNumber, gender, birthDate);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -406,6 +436,9 @@ namespace Wilcommerce.Registries.Commands
                 }
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerDeletedEvent(customerId);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -437,6 +470,9 @@ namespace Wilcommerce.Registries.Commands
                 await AuthClient.DisableAccount(customer.Account.UserId);
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerAccountLockedEvent(customerId, customer.Account.UserName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -470,6 +506,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.MarkBillingInfoAsDefault(billingInfoId);
             await Repository.SaveChangesAsync();
+
+            var @event = new BillingInformationMarkedAsDefaultEvent(customerId, billingInfoId);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -498,6 +537,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.MarkShippingAddressAsDefault(addressId);
             await Repository.SaveChangesAsync();
+
+            var @event = new ShippingAddressMarkedAsDefaultEvent(customerId, addressId);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -527,6 +569,9 @@ namespace Wilcommerce.Registries.Commands
 
             Repository.Add(company);
             await Repository.SaveChangesAsync();
+
+            var @event = new CompanyRegisteredEvent(company.Id, companyName, vatNumber);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -571,6 +616,9 @@ namespace Wilcommerce.Registries.Commands
 
                 Repository.Add(company);
                 await Repository.SaveChangesAsync();
+
+                var @event = new CompanyRegisteredWithAccountEvent(company.Id, companyName, vatNumber, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -612,6 +660,9 @@ namespace Wilcommerce.Registries.Commands
 
             Repository.Add(person);
             await Repository.SaveChangesAsync();
+
+            var @event = new PersonRegisteredEvent(person.Id, firstName, lastName, gender, birthDate);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -663,6 +714,9 @@ namespace Wilcommerce.Registries.Commands
 
                 Repository.Add(person);
                 await Repository.SaveChangesAsync();
+
+                var @event = new PersonRegisteredWithAccountEvent(person.Id, firstName, lastName, gender, birthDate, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -691,11 +745,15 @@ namespace Wilcommerce.Registries.Commands
             try
             {
                 var accountId = customer.Account.UserId;
+                string userName = customer.Account.UserName;
 
                 customer.RemoveAccount();
                 await AuthClient.DisableAccount(accountId);
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerAccountRemovedEvent(customerId, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -729,6 +787,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.RemoveBillingInfo(billingInfoId);
             await Repository.SaveChangesAsync();
+
+            var @event = new BillingoInformationRemovedEvent(customerId, billingInfoId);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -757,6 +818,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.RemoveShippingAddress(addressId);
             await Repository.SaveChangesAsync();
+
+            var @event = new ShippingAddressRemovedEvent(customerId, addressId);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -787,6 +851,9 @@ namespace Wilcommerce.Registries.Commands
                 }
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerRestoredEvent(customerId);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -830,6 +897,9 @@ namespace Wilcommerce.Registries.Commands
                 customer.SetAccount(userId, userName);
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerAccountSetEvent(customerId, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {

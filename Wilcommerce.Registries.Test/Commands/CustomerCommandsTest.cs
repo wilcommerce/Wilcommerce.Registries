@@ -482,6 +482,32 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(vatNumber, customer.VatNumber);
             Assert.Equal(nationalIdentificationNumber, customer.NationalIdentificationNumber);
         }
+
+        [Fact]
+        public async Task ChangeCompanyInfo_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            var customer = Company.Register("my company", "0123456789");
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Company>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            string companyName = "Company";
+            string vatNumber = "1234567890";
+            string nationalIdentificationNumber = "1234567890";
+
+            await commands.ChangeCompanyInfo(customerId, companyName, vatNumber, nationalIdentificationNumber);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CompanyInfoChangedEvent>()));
+        }
         #endregion
 
         #region ChangeCompanyLegalAddress tests
@@ -615,6 +641,34 @@ namespace Wilcommerce.Registries.Test.Commands
             Assert.Equal(postalCode, customer.LegalAddress.PostalCode);
             Assert.Equal(province, customer.LegalAddress.Province);
             Assert.Equal(country, customer.LegalAddress.Country);
+        }
+
+        [Fact]
+        public async Task ChangeCompanyLegalAddress_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            var customer = Company.Register("company", "1234567890");
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(s => s.GetByKeyAsync<Company>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = Guid.NewGuid();
+            string address = "address";
+            string city = "city";
+            string postalCode = "12345";
+            string province = "province";
+            string country = "italy";
+
+            await commands.ChangeCompanyLegalAddress(customerId, address, city, postalCode, province, country);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CompanyLegalAddressChangedEvent>()));
         }
         #endregion
 
@@ -1225,6 +1279,29 @@ namespace Wilcommerce.Registries.Test.Commands
             authClientMock.Verify(a => a.DisableAccount(customer.Account.UserId));
             Assert.True(customer.Account.IsLocked);
         }
+
+        [Fact]
+        public async Task DeleteCustomer_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+
+            await commands.DeleteCustomer(customerId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CustomerDeletedEvent>()));
+        }
         #endregion
 
         #region LockCustomerAccount tests
@@ -1271,12 +1348,33 @@ namespace Wilcommerce.Registries.Test.Commands
             var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
             var commands = new CustomerCommands(repository, authClient, eventBus);
 
-            Guid customerId = Guid.NewGuid();
+            Guid customerId = customer.Id;
             await commands.LockCustomerAccount(customerId);
 
             authClientMock.Verify(a => a.DisableAccount(customer.Account.UserId));
             repositoryMock.Verify(r => r.SaveChangesAsync());
             Assert.True(customer.Account.IsLocked);
+        }
+
+        [Fact]
+        public async Task LockCustomerAccount_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.RegisterWithAccount("company", "1234567890", Guid.NewGuid(), "username");
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            await commands.LockCustomerAccount(customerId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CustomerAccountLockedEvent>()));
         }
         #endregion
 
@@ -2001,6 +2099,30 @@ namespace Wilcommerce.Registries.Test.Commands
 
             Assert.Equal(AccountInfo.EmptyAccount(), customer.Account);
         }
+
+        [Fact]
+        public async Task RemoveCustomerAccount_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.RegisterWithAccount("company", "1234567890", Guid.NewGuid(), "username");
+            var accountId = customer.Account.UserId;
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+
+            await commands.RemoveCustomerAccount(customerId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CustomerAccountRemovedEvent>()));
+        }
         #endregion
 
         #region RemoveCustomerBillingInformation tests
@@ -2222,6 +2344,30 @@ namespace Wilcommerce.Registries.Test.Commands
             authClientMock.Verify(a => a.EnableAccount(customer.Account.UserId));
             Assert.False(customer.Account.IsLocked);
         }
+
+        [Fact]
+        public async Task RestoreCustomer_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+            customer.Delete();
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = new Mock<IAuthClient>().Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+
+            await commands.RestoreCustomer(customerId);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CustomerRestoredEvent>()));
+        }
         #endregion
 
         #region SetCustomerAccount tests
@@ -2311,7 +2457,7 @@ namespace Wilcommerce.Registries.Test.Commands
             var eventBus = new Mock<Core.Infrastructure.IEventBus>().Object;
             var commands = new CustomerCommands(repository, authClient, eventBus);
 
-            Guid customerId = Guid.NewGuid();
+            Guid customerId = customer.Id;
             string userName = "username";
             string password = "password";
 
@@ -2322,6 +2468,35 @@ namespace Wilcommerce.Registries.Test.Commands
 
             Assert.Equal(userName, customer.Account.UserName);
             Assert.NotEqual(Guid.Empty, customer.Account.UserId);
+        }
+
+        [Fact]
+        public async Task SetCustomerAccount_Should_Call_EventBus_RaiseEvent_With_Specified_Values()
+        {
+            Customer customer = Company.Register("company", "1234567890");
+
+            var repositoryMock = new Mock<IRepository>();
+            repositoryMock.Setup(r => r.GetByKeyAsync<Customer>(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(customer));
+
+            var authClientMock = new Mock<IAuthClient>();
+            authClientMock.Setup(a => a.FindOrRegisterAccount(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(Guid.NewGuid()));
+
+            var eventBusMock = new Mock<Core.Infrastructure.IEventBus>();
+
+            var repository = repositoryMock.Object;
+            var authClient = authClientMock.Object;
+            var eventBus = eventBusMock.Object;
+            var commands = new CustomerCommands(repository, authClient, eventBus);
+
+            Guid customerId = customer.Id;
+            string userName = "username";
+            string password = "password";
+
+            await commands.SetCustomerAccount(customerId, userName, password);
+
+            eventBusMock.Verify(b => b.RaiseEvent(It.IsAny<CustomerAccountSetEvent>()));
         }
         #endregion
     }

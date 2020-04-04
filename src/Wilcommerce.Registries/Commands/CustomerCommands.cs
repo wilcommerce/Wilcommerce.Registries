@@ -180,6 +180,9 @@ namespace Wilcommerce.Registries.Commands
             }
 
             await Repository.SaveChangesAsync();
+
+            var @event = new CompanyInfoChangedEvent(customerId, companyName, vatNumber, nationalIdentificationNumber);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -222,6 +225,9 @@ namespace Wilcommerce.Registries.Commands
 
             customer.ChangeLegalAddress(address, city, postalCode, province, country);
             await Repository.SaveChangesAsync();
+
+            var @event = new CompanyLegalAddressChangedEvent(customerId, address, city, postalCode, province, country);
+            EventBus.RaiseEvent(@event);
         }
 
         /// <summary>
@@ -418,6 +424,9 @@ namespace Wilcommerce.Registries.Commands
                 }
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerDeletedEvent(customerId);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -449,6 +458,9 @@ namespace Wilcommerce.Registries.Commands
                 await AuthClient.DisableAccount(customer.Account.UserId);
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerAccountLockedEvent(customerId, customer.Account.UserName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -715,11 +727,15 @@ namespace Wilcommerce.Registries.Commands
             try
             {
                 var accountId = customer.Account.UserId;
+                string userName = customer.Account.UserName;
 
                 customer.RemoveAccount();
                 await AuthClient.DisableAccount(accountId);
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerAccountRemovedEvent(customerId, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -811,6 +827,9 @@ namespace Wilcommerce.Registries.Commands
                 }
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerRestoredEvent(customerId);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
@@ -854,6 +873,9 @@ namespace Wilcommerce.Registries.Commands
                 customer.SetAccount(userId, userName);
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new CustomerAccountSetEvent(customerId, userName);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {

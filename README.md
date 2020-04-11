@@ -1,6 +1,9 @@
 # Wilcommerce.Registries
 Wilcommerce Registries contains all the components to add customer management.
 
+## Installation
+Nuget package available here [https://www.nuget.org/packages/Wilcommerce.Registries/](https://www.nuget.org/packages/Wilcommerce.Registries/)
+
 ## Models
 The **Models** namespace contains all the classes representing the components useful to manage customers (i.e. Customer, Person, Company, Shipping address, Billing Information, etc.).
 

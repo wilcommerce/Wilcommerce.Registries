@@ -16,7 +16,7 @@ namespace Wilcommerce.Registries.Models
         /// <summary>
         /// Get or set the billing address
         /// </summary>
-        public PostalAddress BillingAddress { get; set; }
+        public virtual PostalAddress BillingAddress { get; set; }
 
         /// <summary>
         /// Get or set the customer full name used for billing

@@ -61,7 +61,7 @@ namespace Wilcommerce.Registries.Models
         {
             if (string.IsNullOrWhiteSpace(lastName))
             {
-                throw new ArgumentException("value cannot be null", nameof(lastName));
+                throw new ArgumentException("value cannot be empty", nameof(lastName));
             }
 
             LastName = lastName;
